@@ -1,0 +1,25 @@
+name: Joke Action
+run-name: {% raw %}Dad Joke for issue ${{ github.event.issue.number }} by ${{ github.event.comment.user.login }}{% endraw %}
+
+on:
+ issue_comment:
+   types: [created]
+
+permissions:
+ issues: write
+ contents: read
+
+jobs:
+  joke:
+    if: startsWith(github.event.comment.body, '/joke')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Get Joke
+        id: get-joke
+        uses: ./
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+         issue-number: {% raw %}${{ github.event.issue.number }}{% endraw %}
+         body: {% raw %}${{ steps.get-joke.outputs.joke }}{% endraw %}
